@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Culture Entrepreneuriale</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --accent: #f59e0b;
+    --accent2: #10b981;
+    --danger: #ef4444;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 60px;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245,158,11,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 80% 80%, rgba(16,185,129,0.05) 0%, transparent 60%);
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+    animation: fadeDown 0.6s ease both;
+  }
+  .header .label {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(22px, 5vw, 36px);
+    font-weight: 800;
+    line-height: 1.1;
+  }
+  .header h1 span { color: var(--accent); }
+
+  /* PROGRESS */
+  .progress-wrap {
+    width: 100%;
+    max-width: 680px;
+    margin-bottom: 28px;
+    animation: fadeDown 0.6s 0.1s ease both;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .progress-meta .score-badge {
+    background: rgba(245,158,11,0.15);
+    color: var(--accent);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .bar-bg {
+    height: 5px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #fbbf24);
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* QCM TABS */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    animation: fadeDown 0.6s 0.15s ease both;
+  }
+  .tab-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 18px;
+    border-radius: 99px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: #0a0e1a;
+    border-color: var(--accent);
+  }
+  .tab-btn.done {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  /* CARD */
+  .card {
+    width: 100%;
+    max-width: 680px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.45s ease both;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  .q-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .q-text {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 26px;
+  }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option-btn {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.45;
+  }
+  .option-btn .letter {
+    min-width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.18s;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: rgba(245,158,11,0.4);
+    background: rgba(245,158,11,0.05);
+    transform: translateX(3px);
+  }
+  .option-btn:hover:not(:disabled) .letter {
+    background: var(--accent);
+    color: #0a0e1a;
+  }
+  .option-btn.correct {
+    border-color: var(--accent2);
+    background: rgba(16,185,129,0.08);
+    pointer-events: none;
+  }
+  .option-btn.correct .letter {
+    background: var(--accent2);
+    color: #0a0e1a;
+  }
+  .option-btn.wrong {
+    border-color: var(--danger);
+    background: rgba(239,68,68,0.07);
+    pointer-events: none;
+  }
+  .option-btn.wrong .letter {
+    background: var(--danger);
+    color: #fff;
+  }
+  .option-btn.reveal {
+    border-color: rgba(16,185,129,0.5);
+    background: rgba(16,185,129,0.05);
+    pointer-events: none;
+  }
+  .option-btn.reveal .letter {
+    background: var(--accent2);
+    color: #0a0e1a;
+  }
+  .option-btn:disabled { cursor: default; }
+
+  /* FEEDBACK */
+  .feedback {
+    margin-top: 20px;
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-size: 14px;
+    line-height: 1.55;
+    display: none;
+    animation: popIn 0.3s ease both;
+  }
+  .feedback.wrong-fb {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.25);
+    color: #fca5a5;
+    display: block;
+  }
+  .feedback.correct-fb {
+    background: rgba(16,185,129,0.08);
+    border: 1px solid rgba(16,185,129,0.25);
+    color: #6ee7b7;
+    display: block;
+  }
+  .feedback strong { color: inherit; font-weight: 600; }
+
+  /* NEXT BTN */
+  .next-btn {
+    margin-top: 22px;
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #0a0e1a;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: none;
+    transition: all 0.2s;
+    animation: popIn 0.3s ease both;
+  }
+  .next-btn:hover { background: #fbbf24; transform: translateY(-1px); }
+  .next-btn.show { display: block; }
+  .next-btn.green {
+    background: var(--accent2);
+  }
+  .next-btn.green:hover { background: #34d399; }
+
+  /* RESULTS */
+  .results {
+    width: 100%;
+    max-width: 680px;
+    text-align: center;
+    display: none;
+    animation: slideUp 0.5s ease both;
+  }
+  .results.show { display: block; }
+  .results-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+  }
+  .results h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .results .sub { color: var(--muted); margin-bottom: 28px; font-size: 15px; }
+  .score-big {
+    font-family: 'Syne', sans-serif;
+    font-size: 64px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .score-label { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+  .restart-btn {
+    padding: 14px 36px;
+    background: var(--accent);
+    color: #0a0e1a;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 0 6px;
+  }
+  .restart-btn:hover { background: #fbbf24; }
+  .restart-btn.ghost {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+  }
+  .restart-btn.ghost:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
+
+  /* START SCREEN */
+  .start-screen {
+    width: 100%;
+    max-width: 680px;
+    text-align: center;
+    padding: 48px 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    animation: slideUp 0.45s ease both;
+  }
+  .start-screen h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 14px;
+  }
+  .start-screen p { color: var(--muted); font-size: 15px; line-height: 1.6; margin-bottom: 28px; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .stat-box {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 16px 10px;
+  }
+  .stat-box .n {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .stat-box .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .start-btn {
+    padding: 14px 40px;
+    background: var(--accent);
+    color: #0a0e1a;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .start-btn:hover { background: #fbbf24; transform: translateY(-2px); }
+
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:none; } }
+  @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+  @keyframes popIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="label">Master FACG — FSJES Tétouan</div>
+  <h1>Culture <span>Entrepreneuriale</span><br>& Techniques de Communication</h1>
+</div>
+
+<!-- START -->
+<div class="start-screen" id="startScreen">
+  <h2>Prêt pour l'entraînement ?</h2>
+  <p>Teste tes connaissances sur les 3 QCM du cours.<br>Clique sur une réponse — feedback immédiat à chaque question.</p>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="n">50</div><div class="lbl">Questions</div></div>
+    <div class="stat-box"><div class="n">3</div><div class="lbl">QCM</div></div>
+    <div class="stat-box"><div class="n">4</div><div class="lbl">Choix / Q</div></div>
+  </div>
+  <button class="start-btn" onclick="startQuiz()">Commencer le quiz →</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quizArea" style="display:none; width:100%; max-width:680px;">
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span id="qLabel">Question 1 / 50</span>
+      <span class="score-badge" id="scoreLabel">Score : 0</span>
+    </div>
+    <div class="bar-bg"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+  </div>
+  <div class="tabs" id="tabsArea"></div>
+  <div class="card" id="qCard">
+    <div class="q-number" id="qNum"></div>
+    <div class="q-text" id="qText"></div>
+    <div class="options" id="optionsArea"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Question suivante →</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="results" id="resultsArea">
+  <div class="results-icon" id="resultsIcon"></div>
+  <div class="score-big" id="scoreBig"></div>
+  <div class="score-label" id="scoreDetail"></div>
+  <h2 id="resultsTitle"></h2>
+  <p class="sub" id="resultsSub"></p>
+  <button class="restart-btn" onclick="restart()">🔄 Recommencer tout</button>
+  <button class="restart-btn ghost" onclick="restartWrong()">Revoir mes erreurs</button>
+</div>
+
+<script>
+const ALL_QUESTIONS = [
+  // QCM 1
+  {qcm:1, q:"Selon Hofstede (1980), quelle dimension culturelle influence le plus directement la propension d'une société à valoriser l'entrepreneuriat individuel ?", opts:["La distance hiérarchique (Power Distance)","L'individualisme vs le collectivisme","L'orientation à long terme","L'indulgence vs la retenue"], correct:1, expl:"Hofstede identifie <strong>l'individualisme vs le collectivisme</strong> comme la dimension qui influence le plus la valorisation de l'initiative personnelle et de l'entrepreneuriat individuel."},
+  {qcm:1, q:"Le concept de « culture entrepreneuriale » au sens organisationnel désigne :", opts:["L'ensemble des réglementations fiscales favorables à la création d'entreprise","Un système de valeurs, normes et croyances qui valorise l'initiative, la prise de risque et l'innovation au sein d'une organisation ou d'une société","Les programmes universitaires dédiés à la formation des créateurs d'entreprise","Le niveau de PIB consacré au financement des startups par l'État"], correct:1, expl:"La culture entrepreneuriale est un <strong>système de valeurs, normes et croyances</strong> qui valorise l'initiative, la prise de risque et l'innovation. Ce n'est pas une réglementation ni un budget public."},
+  {qcm:1, q:"Le modèle GEM distingue l'entrepreneuriat par nécessité de l'entrepreneuriat par opportunité. Quelle est la principale différence ?", opts:["L'entrepreneuriat par nécessité concerne uniquement les pays développés","L'entrepreneuriat par opportunité est motivé par l'exploitation d'une occasion de marché, tandis que l'entrepreneuriat par nécessité est contraint par l'absence d'alternative d'emploi","L'entrepreneuriat par nécessité génère systématiquement plus de valeur ajoutée","L'entrepreneuriat par opportunité est exclusivement financé par le capital-risque"], correct:1, expl:"L'<strong>entrepreneuriat par opportunité</strong> = saisir une occasion de marché. L'<strong>entrepreneuriat par nécessité</strong> = créer par absence d'alternative d'emploi (contrainte)."},
+  {qcm:1, q:"Selon North (1990), quelles sont les « institutions » qui structurent l'environnement entrepreneurial ?", opts:["Uniquement les organismes gouvernementaux et les ministères","Les banques centrales et les institutions financières internationales","Les règles formelles (lois, réglementations) et informelles (normes, conventions, codes de conduite) qui contraignent et facilitent les interactions humaines","Les universités et les centres de recherche publics"], correct:2, expl:"North définit les institutions comme les règles <strong>formelles ET informelles</strong>. Les banques ou universités seules ne suffisent pas — la définition englobe aussi normes sociales et conventions."},
+  {qcm:1, q:"Le modèle de l'écosystème entrepreneurial de Stam (2015) place au cœur du système :", opts:["Le financement public sous forme de subventions directes","Les grandes entreprises multinationales qui créent des effets d'entraînement","Les entrepreneurs et leurs réseaux, soutenus par des conditions-cadres institutionnelles et des ressources","Les politiques d'exportation et d'internationalisation des PME"], correct:2, expl:"Stam place <strong>les entrepreneurs et leurs réseaux</strong> au cœur de l'écosystème. Les ressources et institutions ne sont que des conditions-cadres qui les soutiennent."},
+  {qcm:1, q:"Dans les sociétés à forte « aversion à l'incertitude » (Hofstede), quel impact est généralement observé sur l'activité entrepreneuriale ?", opts:["Une augmentation des startups technologiques à fort potentiel","Une réduction de l'intention entrepreneuriale, les individus préférant la sécurité de l'emploi salarié","Un développement accru de l'entrepreneuriat social","Une spécialisation dans les secteurs à faible risque comme l'agriculture"], correct:1, expl:"Forte aversion à l'incertitude → les individus fuient le risque et <strong>préfèrent la sécurité de l'emploi salarié</strong>, ce qui réduit l'intention entrepreneuriale."},
+  {qcm:1, q:"Selon le rapport Doing Business de la Banque Mondiale, quel indicateur est le plus corrélé à la dynamique entrepreneuriale d'un pays ?", opts:["Le taux d'imposition marginal sur les grandes entreprises","La facilité et le coût de création d'entreprise (nombre de procédures, délais, coûts)","Le niveau des droits de douane sur les produits importés","Le taux de chômage structurel de la population active"], correct:1, expl:"Doing Business mesure surtout la <strong>facilité de créer et gérer une entreprise</strong> (procédures, délais, coûts). C'est l'indicateur le plus directement corrélé à la dynamique entrepreneuriale."},
+  {qcm:1, q:"La « tolérance à l'échec » est considérée comme un pilier culturel de l'entrepreneuriat. Dans quelle économie cette norme est-elle traditionnellement la plus développée et comment se manifeste-t-elle ?", opts:["En Allemagne, par la stigmatisation faible de la faillite personnelle","Aux États-Unis, notamment via la législation favorable au rebond (Chapter 11) et une culture valorisant l'apprentissage par l'échec","En France, grâce aux aides au retour à l'emploi des entrepreneurs faillis","Au Japon, par la tradition de reconversion professionnelle rapide des dirigeants"], correct:1, expl:"Les <strong>États-Unis</strong> sont le modèle de référence : le Chapter 11 permet le rebond légal, et la culture américaine valorise l'apprentissage par l'échec plutôt que la honte."},
+  {qcm:1, q:"Le modèle de la Triple Hélice (Etzkowitz & Leydesdorff, 1995) décrit l'environnement d'innovation comme une interaction entre :", opts:["Entrepreneur, investisseur et client","Startup, corporate et fonds de capital-risque","Université, industrie et gouvernement","ONG, secteur public et secteur informel"], correct:2, expl:"La Triple Hélice = interaction entre <strong>Université + Industrie + Gouvernement</strong>. C'est le modèle classique des écosystèmes d'innovation."},
+  {qcm:1, q:"Putnam (1993) distingue deux formes de capital social pertinentes pour l'entrepreneur. Lesquelles ?", opts:["Capital humain et capital physique","Capital bonding (liens forts, intragroupe) et capital bridging (liens faibles, intergroupe)","Capital formel (institutionnel) et capital informel (familial)","Capital financier et capital réputationnel"], correct:1, expl:"Putnam distingue : <strong>Bonding</strong> (liens forts, intragroupe = cohésion) et <strong>Bridging</strong> (liens faibles, intergroupe = accès à l'information diverse). Les deux sont utiles à l'entrepreneur."},
+  {qcm:1, q:"Le concept de « cluster » industriel de Porter (1990) explique la concentration géographique d'entreprises par :", opts:["La proximité des matières premières et la réduction des coûts de transport","Les subventions publiques accordées aux zones économiques spéciales","Les externalités positives générées par la proximité : accès aux ressources spécialisées, main-d'œuvre qualifiée, spillovers de connaissance et pression concurrentielle stimulante","La politique de délocalisation des grandes entreprises vers des zones à faible coût"], correct:2, expl:"Porter explique les clusters par les <strong>externalités positives de la proximité</strong> : ressources spécialisées, main-d'œuvre qualifiée, spillovers de connaissance — pas par des subventions ou la réduction des coûts de transport."},
+  {qcm:1, q:"Quelle caractéristique de l'environnement numérique a le plus transformé les barrières à l'entrée pour les nouvelles entreprises depuis les années 2000 ?", opts:["La généralisation de la signature électronique dans les procédures administratives","L'effondrement des coûts marginaux de reproduction et de distribution de l'information, et l'accès démocratisé aux infrastructures cloud","La réglementation européenne sur la protection des données (RGPD)","Le développement des réseaux de fibre optique dans les zones rurales"], correct:1, expl:"L'<strong>effondrement des coûts marginaux</strong> de reproduction/distribution + le <strong>cloud</strong> démocratisé = les barrières à l'entrée s'effondrent pour les startups digitales."},
+  {qcm:1, q:"Le concept de « défaillance de marché » justifie l'intervention publique dans l'écosystème entrepreneurial. Laquelle des situations suivantes constitue une défaillance de marché classique ?", opts:["La concurrence trop intense entre startups dans un même secteur","Le sous-financement de la R&D en raison de l'incapacité du marché à capter toutes les externalités positives de l'innovation","L'excès de réglementations environnementales imposées aux PME","La trop grande rapidité de l'innovation technologique par rapport à la demande"], correct:1, expl:"Défaillance de marché classique : le marché <strong>sous-finance la R&D</strong> car il ne peut pas capter toutes les externalités positives de l'innovation → l'État doit intervenir."},
+  {qcm:1, q:"L'intrapreneuriat (Pinchot, 1985) se distingue de l'entrepreneuriat traditionnel principalement par :", opts:["L'absence totale de prise de risque financier pour le porteur de projet","Le fait que l'initiative innovante se développe au sein d'une organisation existante, mobilisant ses ressources tout en conservant son esprit entrepreneurial","L'obligation de créer une filiale juridiquement indépendante de la maison mère","La nécessité d'un financement exclusivement externe par capital-risque"], correct:1, expl:"L'intrapreneuriat = initiative innovante <strong>au sein d'une organisation existante</strong>, mobilisant ses ressources. Pas de création externe, pas d'indépendance juridique obligatoire."},
+  {qcm:1, q:"L'indice « Ease of Doing Business » classe les pays selon leur environnement réglementaire. Quels pays d'Afrique sub-saharienne sont régulièrement classés parmi les plus favorables à l'entrepreneuriat selon cet indice ?", opts:["Nigeria et Éthiopie","Afrique du Sud et Cameroun","Maurice et Rwanda","Sénégal et Côte d'Ivoire"], correct:2, expl:"<strong>Maurice et Rwanda</strong> sont systématiquement classés meilleurs en Afrique sub-saharienne pour l'environnement réglementaire selon le Doing Business."},
+  {qcm:1, q:"Les « Business Angels » se distinguent des fonds de capital-risque (Venture Capital) principalement par :", opts:["Leur statut juridique de fonds d'investissement réglementé","Leur spécialisation exclusive dans les secteurs de la biotechnologie et de la santé","Leur obligation légale de siéger au conseil d'administration de la startup financée","Leur intervention en phase d'amorçage avec des montants plus faibles, un investissement personnel en fonds propres et un apport de compétences et de réseau (smart money)"], correct:3, expl:"Business Angels = <strong>phase d'amorçage</strong>, montants plus faibles, investissement en fonds propres + apport de compétences/réseau (<em>smart money</em>). Très différent des fonds VC qui interviennent plus tard."},
+  {qcm:1, q:"Les recherches sur le genre et l'entrepreneuriat (Brush et al., 2009) montrent que les femmes entrepreneures font face à des barrières spécifiques. Laquelle est la plus documentée dans la littérature ?", opts:["Une aversion au risque biologiquement déterminée","Des contraintes d'accès au financement (gender gap financier), à des réseaux professionnels dominants et à la légitimité sociale en tant qu'entrepreneures","Un niveau de formation inférieur en sciences et technologies","Une préférence culturelle universelle pour le secteur associatif"], correct:1, expl:"La barrière la plus documentée = <strong>accès au financement</strong> (gender gap financier) + réseaux professionnels + légitimité sociale. Ce n'est pas une question biologique."},
+  {qcm:1, q:"Le concept de « disruption » technologique (Christensen, 1997) implique pour l'environnement entrepreneurial que :", opts:["Seules les grandes entreprises disposant de R&D interne peuvent innover de manière radicale","La disruption est toujours le résultat d'une invention technologique brevetée","Des entrants initialement positionnés sur des marchés négligés peuvent déstabiliser des acteurs établis en proposant des solutions plus simples, moins chères, puis progressivement plus performantes","Les marchés disruptés sont exclusivement des marchés de consommateurs finaux (B2C)"], correct:2, expl:"Christensen : les disrupteurs partent de <strong>marchés négligés</strong> avec des solutions simples et moins chères, puis montent en gamme pour déstabiliser les acteurs établis."},
+  {qcm:1, q:"Le rôle des modèles de rôle (role models) dans la diffusion de la culture entrepreneuriale a été théorisé notamment par Krueger (1993). Quel mécanisme psychologique explique leur influence ?", opts:["La compétition directe que les modèles exercent sur les aspirants entrepreneurs","L'apprentissage vicariant (observation de tiers réussissant des comportements entrepreneuriaux) qui renforce la self-efficacy et la désirabilité perçue de l'entrepreneuriat","L'obligation morale de reproduire les choix de carrière des membres de sa famille","La disponibilité de ressources financières transférées par les modèles de rôle"], correct:1, expl:"Mécanisme clé = <strong>apprentissage vicariant</strong> (observer quelqu'un réussir → renforce ma croyance que moi aussi je peux → renforce la self-efficacy et la désirabilité perçue)."},
+  {qcm:1, q:"L'entrepreneuriat durable ou « éco-entrepreneuriat » (Schaltegger & Wagner, 2011) se caractérise par :", opts:["La création d'entreprises dans le seul secteur des énergies renouvelables","L'obtention obligatoire d'une certification ISO 14001 avant le lancement","L'intégration des dimensions économiques, sociales et environnementales dans le modèle d'affaires dès la conception, avec pour objectif de créer simultanément de la valeur marchande et de la valeur soutenable","Le renoncement à toute rentabilité financière au profit d'impacts sociaux mesurables"], correct:2, expl:"Éco-entrepreneuriat = intégration <strong>économique + sociale + environnementale</strong> dès la conception. Ce n'est pas limité aux énergies renouvelables ni au renoncement à la rentabilité."},
+  // QCM 2
+  {qcm:2, q:"Laquelle des propositions suivantes définit le mieux l'entrepreneuriat en tant que phénomène économique ?", opts:["La simple création d'une entreprise commerciale à but lucratif","Le processus par lequel un individu identifie une opportunité, mobilise des ressources et crée de la valeur","L'ensemble des activités menées par les grandes entreprises pour innover","La gestion quotidienne d'une organisation déjà établie"], correct:1, expl:"L'entrepreneuriat = <strong>processus</strong> d'identification d'une opportunité + mobilisation de ressources + création de valeur. Pas simplement créer une entreprise."},
+  {qcm:2, q:"L'intrapreneuriat désigne :", opts:["La création d'une start-up par un étudiant universitaire","Le comportement entrepreneurial au sein d'une organisation existante","La reprise d'une entreprise familiale par un héritier","La création d'une entreprise par des investisseurs étrangers"], correct:1, expl:"<strong>Intrapreneuriat</strong> = comportement entrepreneurial DANS une organisation existante. À ne pas confondre avec la création d'entreprise externe."},
+  {qcm:2, q:"L'entrepreneuriat social se distingue principalement de l'entrepreneuriat classique par :", opts:["Sa taille toujours réduite","L'absence totale de recherche de profit","La priorité accordée à la mission sociale sur la maximisation du profit","Son financement exclusivement public"], correct:2, expl:"L'entrepreneuriat social peut générer du profit, mais ce profit est un <strong>moyen</strong> au service d'une <strong>mission sociale</strong>, pas une fin en soi."},
+  {qcm:2, q:"La reprise d'entreprise est une forme d'entrepreneuriat qui consiste à :", opts:["Créer une nouvelle entité juridique ex nihilo","Acquérir ou hériter d'une entreprise existante pour en assurer la continuité","Fusionner deux entreprises concurrentes","Liquider une entreprise en difficulté"], correct:1, expl:"Reprise d'entreprise = <strong>acquérir ou hériter</strong> d'une entité existante pour en assurer la continuité. Pas créer de zéro, pas liquider."},
+  {qcm:2, q:"L'entrepreneuriat technologique (ou tech entrepreneurship) se caractérise principalement par :", opts:["La commercialisation de produits artisanaux","L'exploitation d'innovations technologiques pour créer de nouvelles offres à forte scalabilité","La transformation numérique des administrations publiques","Le conseil en systèmes d'information pour les grandes entreprises"], correct:1, expl:"Tech entrepreneurship = exploiter des <strong>innovations technologiques</strong> pour créer des offres à forte <strong>scalabilité</strong> (croissance rapide sans augmentation proportionnelle des coûts)."},
+  {qcm:2, q:"Parmi les formes suivantes, laquelle relève de l'entrepreneuriat institutionnel ?", opts:["La création d'une start-up dans le secteur alimentaire","Un entrepreneur qui modifie les règles du jeu institutionnel d'un secteur","La vente d'une franchise à un partenaire local","La gestion d'un fonds d'investissement à risque"], correct:1, expl:"<strong>Entrepreneuriat institutionnel</strong> = un entrepreneur qui modifie les règles, normes et structures d'un secteur entier (ex : Uber qui bouleverse les règles du transport)."},
+  {qcm:2, q:"Le concept de spin-off désigne :", opts:["Une forme de franchisage inversée","La liquidation d'une filiale non rentable","Un partenariat stratégique entre deux PME","Une entreprise créée à partir d'une autre (université, laboratoire ou grande firme) par essaimage"], correct:3, expl:"Spin-off = entreprise créée par <strong>essaimage</strong> à partir d'une université, d'un labo ou d'une grande firme. Le fondateur part avec une technologie ou un savoir-faire pour créer sa propre entité."},
+  {qcm:2, q:"L'entrepreneuriat féminin fait l'objet d'une attention particulière car :", opts:["Les femmes créent exclusivement des entreprises dans le secteur des services","Il représente un levier de développement économique encore sous-exploité face aux obstacles structurels persistants","Il bénéficie de financements beaucoup plus importants que l'entrepreneuriat masculin","Il est limité aux économies émergentes"], correct:1, expl:"L'entrepreneuriat féminin est un <strong>levier sous-exploité</strong> en raison d'obstacles structurels persistants (financement, réseaux, légitimité). Il n'est pas limité à un secteur ou à un type d'économie."},
+  {qcm:2, q:"La franchise est une forme d'entrepreneuriat qui se distingue par :", opts:["Une totale autonomie stratégique du franchisé","Un lien contractuel où le franchiseur accorde au franchisé le droit d'exploiter son concept en échange de redevances","L'absence de tout apport financier de la part du franchisé","Une garantie de succès commercial offerte par le franchiseur"], correct:1, expl:"Franchise = <strong>contrat</strong> par lequel le franchiseur cède le droit d'exploiter son concept/marque en échange de redevances. Le franchisé garde une certaine autonomie opérationnelle mais pas stratégique totale."},
+  {qcm:2, q:"L'entrepreneuriat naissant (nascent entrepreneurship) correspond à :", opts:["La phase de croissance d'une PME établie","La liquidation judiciaire d'une entreprise","La phase durant laquelle un individu initie des activités pour créer une organisation sans avoir encore réalisé de ventes","Le rachat d'une start-up par un grand groupe industriel"], correct:2, expl:"Nascent entrepreneurship = phase <strong>pré-ventes</strong> : l'individu initie des activités (business plan, démarches, recrutement) mais n'a pas encore généré de chiffre d'affaires."},
+  {qcm:2, q:"Joseph Schumpeter est associé à la théorie de :", opts:["L'équilibre général walrasien appliqué aux marchés de capitaux","La destruction créatrice et du rôle de l'entrepreneur comme agent d'innovation","L'entrepreneuriat par nécessité dans les économies en développement","La théorie des ressources et compétences (RBV)"], correct:1, expl:"Schumpeter = <strong>destruction créatrice</strong> : l'entrepreneur introduit des innovations qui détruisent les équilibres existants et créent de nouvelles opportunités."},
+  {qcm:2, q:"Selon Israel Kirzner, l'entrepreneur est avant tout :", opts:["Un innovateur qui détruit l'équilibre du marché","Un gestionnaire rationnel qui minimise les coûts de production","Un individu alerte (alertness) qui perçoit et exploite des opportunités de profit ignorées par les autres","Un agent de l'État qui coordonne les ressources publiques"], correct:2, expl:"Kirzner ≠ Schumpeter. Pour Kirzner, l'entrepreneur est un individu <strong>alerte</strong> (<em>alertness</em>) qui repère et exploite des opportunités de profit que les autres ne voient pas."},
+  {qcm:2, q:"La théorie des coûts de transaction (Williamson) appliquée à l'entrepreneuriat explique :", opts:["Pourquoi les entrepreneurs préfèrent toujours les marchés aux hiérarchies","La décision de créer une entreprise comme moyen de réduire les coûts de transaction liés aux échanges marchands","L'incapacité des petites entreprises à rivaliser avec les multinationales","Le financement de l'entrepreneuriat par les marchés financiers"], correct:1, expl:"Williamson : créer une entreprise = <strong>internaliser des transactions</strong> pour réduire les coûts de négociation, d'information et de contractualisation sur le marché."},
+  {qcm:2, q:"L'approche par les opportunités (Shane & Venkataraman, 2000) définit l'entrepreneuriat comme :", opts:["Un processus purement psychologique lié aux traits de personnalité du fondateur","Une sous-discipline de la finance d'entreprise","Le domaine scientifique qui étudie comment, par qui et avec quels effets les opportunités de création de valeur sont découvertes et exploitées","Une branche de l'économie institutionnelle consacrée aux PME"], correct:2, expl:"Shane & Venkataraman définissent l'entrepreneuriat comme le <strong>domaine scientifique</strong> étudiant comment, par qui et avec quels effets les opportunités de création de valeur sont découvertes et exploitées."},
+  {qcm:2, q:"La théorie du capital humain appliquée à l'entrepreneuriat postule que :", opts:["Le succès entrepreneurial dépend uniquement du capital financier mobilisé","Les compétences, l'expérience et la formation de l'entrepreneur influencent positivement la survie et la performance de la nouvelle entreprise","L'éducation formelle est un frein à l'esprit entrepreneurial","Le capital humain est moins déterminant que le capital social dans la réussite entrepreneuriale"], correct:1, expl:"Capital humain = <strong>compétences + expérience + formation</strong>. Ils influencent positivement la survie et la performance de la nouvelle entreprise."},
+  {qcm:2, q:"La théorie effectuale (Sarasvathy, 2001) s'oppose à la logique causale en affirmant que :", opts:["Les entrepreneurs établissent d'abord un objectif fixe, puis mobilisent les ressources nécessaires pour l'atteindre","Les entrepreneurs raisonnent à partir des moyens disponibles et construisent les objectifs de manière émergente et contingente","L'entrepreneuriat efficace requiert une planification stratégique détaillée ex ante","Le marché cible doit être précisément défini avant tout lancement d'activité"], correct:1, expl:"Effectuation = partir des <strong>moyens disponibles</strong> (qui suis-je, que sais-je, qui je connais) et construire des objectifs flexibles. Inverse de la logique causale (objectif fixe → ressources)."},
+  {qcm:2, q:"Selon l'approche psychologique de McClelland, l'entrepreneur est caractérisé par :", opts:["Un fort besoin de sécurité et d'appartenance sociale","Une aversion totale au risque financier","Une dépendance vis-à-vis des structures hiérarchiques","Un besoin élevé d'accomplissement (need for achievement — nAch)"], correct:3, expl:"McClelland = besoin élevé d'<strong>accomplissement</strong> (nAch). L'entrepreneur cherche à se dépasser, à réaliser des défis, pas à être sécurisé ou à dépendre d'une hiérarchie."},
+  {qcm:2, q:"La Resource-Based View (RBV) appliquée à l'entrepreneuriat insiste sur :", opts:["L'importance des conditions macroéconomiques dans l'émergence des nouvelles entreprises","La taille du marché comme principale variable explicative du succès entrepreneurial","Les ressources rares, inimitables et non substituables comme source d'avantage concurrentiel pour les nouvelles entreprises","L'accès au financement bancaire comme ressource primordiale"], correct:2, expl:"RBV = avantage concurrentiel issu de ressources <strong>rares, inimitables et non substituables</strong> (VRIN). Ce sont ces ressources uniques qui expliquent le succès entrepreneurial."},
+  {qcm:2, q:"L'écologie des populations (Hannan & Freeman) analyse l'entrepreneuriat à travers :", opts:["Les traits psychologiques individuels des fondateurs d'entreprise","Les dynamiques de sélection et de mortalité des organisations dans leur environnement","Les politiques fiscales favorables à la création d'entreprise","Les stratégies de croissance externe des grandes firmes"], correct:1, expl:"Hannan & Freeman analysent l'<strong>écologie des populations</strong> : sélection naturelle des organisations selon leur adaptation à l'environnement — certaines survivent, d'autres disparaissent."},
+  {qcm:2, q:"La théorie de l'embeddedness (Granovetter) appliquée à l'entrepreneuriat montre que :", opts:["Les décisions entrepreneuriales sont purement rationnelles et indépendantes du contexte social","Le capital social est moins important que le capital financier pour la réussite entrepreneuriale","Les comportements économiques des entrepreneurs sont encastrés dans des réseaux sociaux qui influencent leurs décisions","Les entrepreneurs innovent mieux lorsqu'ils s'isolent de leur environnement social"], correct:2, expl:"Granovetter : les comportements économiques sont <strong>encastrés</strong> (<em>embedded</em>) dans des réseaux sociaux. Les décisions ne sont pas purement rationnelles — elles dépendent du contexte relationnel."},
+  {qcm:2, q:"L'intérêt macroéconomique pour l'entrepreneuriat est principalement justifié par :", opts:["Sa capacité à stabiliser les marchés financiers internationaux","Sa contribution à la création d'emplois, à l'innovation et à la croissance économique","Son rôle exclusif dans la redistribution des revenus","Sa fonction de régulation des monopoles d'État"], correct:1, expl:"Justification macro principale = <strong>emplois + innovation + croissance</strong>. L'entrepreneuriat est un moteur de dynamisme économique."},
+  {qcm:2, q:"Le rapport Doing Business (Banque Mondiale) s'intéresse à l'entrepreneuriat car :", opts:["Il finance directement les start-ups dans les pays en développement","Il impose des normes comptables aux PME des pays membres","Il évalue la facilité de créer et de gérer des entreprises comme indicateur du développement économique","Il fixe les taux d'intérêt pour les crédits accordés aux entrepreneurs"], correct:2, expl:"Doing Business évalue la <strong>facilité de faire des affaires</strong> comme indicateur de développement économique. Il ne finance pas directement et ne fixe pas de normes comptables."},
+  {qcm:2, q:"L'entrepreneuriat est considéré comme un levier de développement régional car :", opts:["Il favorise la centralisation des activités économiques dans les métropoles","Il attire nécessairement des investissements directs étrangers","Il remplace avantageusement les politiques d'aménagement du territoire","Il contribue à l'ancrage territorial des activités économiques, à la valorisation des ressources locales et à la réduction des disparités régionales"], correct:3, expl:"Développement régional = <strong>ancrage territorial</strong> des activités, valorisation des ressources locales, réduction des disparités. L'entrepreneuriat ne centralise pas, il décentralise."},
+  {qcm:2, q:"Pourquoi les pouvoirs publics accordent-ils un intérêt croissant à l'entrepreneuriat innovant ?", opts:["Parce qu'il génère des revenus fiscaux immédiats pour l'État","Parce qu'il réduit mécaniquement les dépenses publiques","Parce qu'il stabilise les taux de change nationaux","Parce qu'il constitue un moteur de compétitivité nationale et d'amélioration de la productivité à long terme"], correct:3, expl:"Les pouvoirs publics s'intéressent à l'entrepreneuriat innovant car il est un <strong>moteur de compétitivité nationale</strong> et améliore la productivité à long terme — pas pour des recettes fiscales immédiates."},
+  {qcm:2, q:"Du point de vue microéconomique, l'individu est incité à entreprendre principalement par :", opts:["La garantie d'un revenu stable et d'une protection sociale complète","L'obligation légale imposée aux diplômés de l'enseignement supérieur","La recherche d'autonomie, d'accomplissement personnel et de création de valeur économique","La pression familiale et sociale dans toutes les cultures"], correct:2, expl:"Au niveau micro, l'individu entreprend pour <strong>l'autonomie, l'accomplissement personnel et la création de valeur</strong> — pas pour la sécurité (qui caractérise l'emploi salarié)."},
+  {qcm:2, q:"L'entrepreneuriat par nécessité (necessity-driven entrepreneurship) est particulièrement répandu dans :", opts:["Les économies développées à fort taux d'emploi salarié","Les secteurs à haute technologie dans les pays de l'OCDE","Les grandes métropoles mondiales à fort dynamisme économique","Les économies en développement ou en période de chômage élevé, où l'individu crée son activité faute d'alternative d'emploi"], correct:3, expl:"Necessity entrepreneurship = <strong>absence d'alternative</strong> d'emploi. Typique des économies en développement ou en crise, où l'entrepreneuriat devient une survie économique."},
+  {qcm:2, q:"L'intérêt croissant des institutions académiques pour l'entrepreneuriat s'explique notamment par :", opts:["La disparition progressive des programmes de formation en gestion traditionnelle","L'obligation légale faite aux universités de créer des incubateurs","La réduction des financements publics pour la recherche fondamentale","La reconnaissance de l'entrepreneuriat comme discipline scientifique légitime et vecteur de valorisation de la recherche"], correct:3, expl:"L'académie s'intéresse à l'entrepreneuriat car il est reconnu comme <strong>discipline scientifique légitime</strong> et vecteur de valorisation de la recherche (transfert technologique)."},
+  {qcm:2, q:"En quoi l'entrepreneuriat contribue-t-il à la dynamique concurrentielle d'un secteur ?", opts:["Il consolide les positions dominantes des firmes en place","Il réduit le nombre d'acteurs sur le marché via des fusions-acquisitions","Il homogénéise les pratiques managériales au sein d'un secteur","Il introduit de nouveaux acteurs et de nouvelles offres qui challengent les entreprises établies, stimulant ainsi l'innovation et l'efficience sectorielle"], correct:3, expl:"L'entrepreneuriat <strong>challenge les acteurs établis</strong> en introduisant de nouvelles offres et de nouveaux modèles, stimulant ainsi l'innovation et l'efficience — il ne consolide pas les dominants."},
+  {qcm:2, q:"L'entrepreneuriat est identifié comme un facteur de résilience économique parce qu'il :", opts:["Garantit la stabilité des prix à la consommation","Assure une répartition équitable des richesses entre les différentes couches sociales","Maintient les niveaux de production des secteurs industriels traditionnels","Favorise la diversification des structures économiques et la capacité d'adaptation aux chocs externes"], correct:3, expl:"Résilience économique = <strong>diversification des structures</strong> et capacité d'adaptation aux chocs. L'entrepreneuriat multiplie les acteurs et les modèles, rendant l'économie moins vulnérable."},
+  {qcm:2, q:"Quel lien peut-on établir entre entrepreneuriat et innovation ouverte (open innovation) ?", opts:["Les start-ups sont exclues des processus d'innovation ouverte réservés aux grands groupes","L'innovation ouverte rend l'entrepreneuriat indépendant inutile","Les grandes entreprises n'ont aucun intérêt à collaborer avec des entrepreneurs individuels","Les start-ups agissent souvent comme partenaires d'innovation pour les grandes entreprises, apportant agilité et créativité dans un écosystème d'innovation ouvert"], correct:3, expl:"Open innovation : les start-ups sont des <strong>partenaires précieux</strong> pour les grandes entreprises — elles apportent agilité et créativité que les grands groupes n'ont plus en interne."},
+  // QCM 3
+  {qcm:3, q:"Selon Schumpeter, quelle est la fonction principale de l'entrepreneur ?", opts:["Optimiser l'allocation des ressources existantes","Introduire des innovations créatrices de destructions et de nouvelles opportunités","Maximiser le profit à court terme de l'entreprise","Gérer la main-d'œuvre et les conflits sociaux"], correct:1, expl:"Schumpeter : l'entrepreneur est l'agent de la <strong>destruction créatrice</strong> — il introduit des innovations qui détruisent les anciens équilibres pour créer de nouvelles opportunités."},
+  {qcm:3, q:"Parmi les caractéristiques suivantes, laquelle est considérée comme centrale dans le profil de l'entrepreneur selon la littérature en psychologie économique ?", opts:["L'aversion absolue au risque","La propension à prendre des risques calculés","La préférence pour les structures hiérarchiques stables","La recherche exclusive de revenus fixes"], correct:1, expl:"L'entrepreneur ne fuit pas le risque et ne le cherche pas aveuglément : il prend des <strong>risques calculés</strong>. C'est la caractéristique centrale selon la psychologie économique."},
+  {qcm:3, q:"La théorie de l'effectuation (Sarasvathy, 2001) s'oppose à la logique de causalité. Quelle est son hypothèse centrale ?", opts:["L'entrepreneur fixe un objectif précis et mobilise les ressources pour l'atteindre","L'entrepreneur part des ressources disponibles et construit des objectifs flexibles à partir des possibles","L'entrepreneur duplique les modèles de succès existants sur de nouveaux marchés","L'entrepreneur maximise l'espérance mathématique de chaque décision"], correct:1, expl:"Effectuation (Sarasvathy) = l'entrepreneur part de <strong>ce qu'il a</strong> (compétences, réseau, ressources) et construit des objectifs flexibles. L'inverse de la causalité (objectif fixe → ressources)."},
+  {qcm:3, q:"Le concept de « self-efficacy entrepreneuriale » (Bandura) désigne :", opts:["La capacité réelle mesurée à créer une entreprise rentable","La croyance d'un individu en sa propre capacité à accomplir les tâches entrepreneuriales","Le niveau de diplôme requis pour entreprendre avec succès","La dotation initiale en capital financier de l'entrepreneur"], correct:1, expl:"Self-efficacy = <strong>croyance</strong> en sa propre capacité (pas la capacité réelle objective). C'est une perception subjective qui influence fortement l'intention et le comportement entrepreneurial."},
+  {qcm:3, q:"Qu'est-ce que le « locus of control interne » chez l'entrepreneur ?", opts:["La conviction que les événements dépendent principalement du hasard ou des autres","La tendance à déléguer toutes les décisions clés à ses associés","La croyance que les résultats obtenus découlent avant tout de ses propres actions","La capacité à contrôler les flux financiers de l'entreprise"], correct:2, expl:"Locus interne = conviction que <strong>mes actions déterminent mes résultats</strong>. C'est l'opposé du locus externe (hasard, autres, destin). Les entrepreneurs à locus interne persévèrent davantage."},
+  {qcm:3, q:"Le modèle de l'Intention Entrepreneuriale de Bird (1988) et Ajzen (1991) identifie trois antécédents principaux. Lesquels ?", opts:["Capital, réseau, diplôme","Attitude envers le comportement, normes subjectives, sentiment de contrôle comportemental","Expérience sectorielle, âge, genre","Offre de marché, financement public, accompagnement institutionnel"], correct:1, expl:"Modèle TPB (Ajzen) : 3 antécédents = <strong>attitude envers le comportement</strong> + <strong>normes subjectives</strong> (pression sociale) + <strong>sentiment de contrôle comportemental</strong> (self-efficacy)."},
+  {qcm:3, q:"Quelle distinction Filion (1997) opère-t-il entre l'entrepreneur « visionnaire » et le gestionnaire ?", opts:["L'entrepreneur gère les ressources humaines ; le gestionnaire s'occupe des finances","L'entrepreneur est toujours seul fondateur ; le gestionnaire travaille en équipe","L'entrepreneur opère dans les secteurs technologiques ; le gestionnaire dans l'industrie traditionnelle","L'entrepreneur crée de la valeur par une vision systémique du futur ; le gestionnaire optimise l'existant"], correct:3, expl:"Filion : l'entrepreneur est un <strong>visionnaire</strong> qui crée de la valeur par une vision du futur. Le gestionnaire optimise ce qui existe déjà. La distinction est stratégique, pas sectorielle."},
+  {qcm:3, q:"La résilience entrepreneuriale se définit principalement comme :", opts:["La capacité à éviter tout échec lors du lancement d'une activité","La compétence à réunir un maximum de fonds propres avant de démarrer","La capacité à se remettre des revers, à apprendre des échecs et à persévérer","La résistance physique aux longues heures de travail"], correct:2, expl:"Résilience entrepreneuriale = <strong>rebondir après les échecs</strong> et en apprendre. Ce n'est pas éviter l'échec (impossible) ni une endurance physique."},
+  {qcm:3, q:"Isenberg (2011) définit l'écosystème entrepreneurial comme un ensemble de six domaines. Lequel n'en fait PAS partie ?", opts:["Culture favorable à l'entrepreneuriat","Marchés accessibles","Ressources humaines qualifiées","Politique monétaire nationale"], correct:3, expl:"Les 6 domaines d'Isenberg : culture, marchés, ressources humaines, financement, accompagnement, cadre réglementaire. <strong>La politique monétaire</strong> n'en fait PAS partie — c'est le piège classique."},
+  {qcm:3, q:"Qu'est-ce que la « vallée de la mort » dans le cycle de financement d'une startup ?", opts:["La période de surendettement post-IPO","La phase critique où les fonds initiaux s'épuisent avant que les revenus ne deviennent positifs","Le moment où l'entrepreneur doit licencier ses premiers employés","La perte de parts de marché face à un concurrent dominant"], correct:1, expl:"Vallée de la mort = phase critique entre la fin des financements initiaux et les premiers revenus positifs. <strong>Les fonds s'épuisent avant que l'entreprise ne soit rentable</strong> — risque de mort."},
+  {qcm:3, q:"Selon la classification OCDE (Manuel d'Oslo), combien de types d'innovation une entreprise peut-elle introduire ?", opts:["2 (produit et procédé)","3 (produit, procédé, organisationnelle)","4 (produit, procédé, marketing, organisationnelle)","5 (produit, procédé, marketing, organisationnelle, sociale)"], correct:2, expl:"Manuel d'Oslo = <strong>4 types</strong> d'innovation : produit, procédé, marketing, organisationnelle. Attention, c'est 4 et non 5 — il n'y a pas de catégorie « sociale » officielle dans ce référentiel."},
+  {qcm:3, q:"Shane & Venkataraman (2000) définissent l'opportunité entrepreneuriale comme :", opts:["Une subvention publique disponible pour les créateurs d'entreprise","Une situation dans laquelle de nouveaux biens, services ou méthodes peuvent être introduits et vendus à un prix supérieur au coût de production","Un marché déjà existant sur lequel l'entrepreneur s'insère","Un brevet ou une propriété intellectuelle détenue exclusivement"], correct:1, expl:"Opportunité entrepreneuriale = situation où de nouveaux biens/services peuvent être <strong>introduits et vendus à un prix > coût de production</strong>. C'est la définition précise de Shane & Venkataraman."},
+  {qcm:3, q:"Lequel des styles de leadership suivants est le plus associé à la phase de démarrage d'une startup ?", opts:["Leadership transactionnel centré sur les procédures formelles","Leadership transformationnel, charismatique et orienté vision","Leadership bureaucratique fondé sur les règles établies","Leadership laissez-faire délégant toutes les décisions"], correct:1, expl:"Phase de démarrage = besoin d'un leader <strong>transformationnel et charismatique</strong> qui inspire et fédère autour d'une vision. Le leadership transactionnel ou bureaucratique est inadapté à l'incertitude du démarrage."},
+  {qcm:3, q:"Selon Burt (1992), les « trous structuraux » dans un réseau apportent à l'entrepreneur un avantage parce que :", opts:["Ils réduisent la concurrence en isolant l'entrepreneur du marché","Ils permettent d'accéder à des informations diversifiées et d'agir comme intermédiaire stratégique entre groupes non connectés","Ils garantissent la loyauté des partenaires au sein d'un cluster fermé","Ils augmentent la densité des liens forts entre associés"], correct:1, expl:"Trous structuraux (Burt) = l'entrepreneur se positionne comme <strong>intermédiaire stratégique</strong> entre groupes non connectés → accès à des informations diversifiées et pouvoir de courtage."},
+  {qcm:3, q:"Parmi les raisons les plus citées dans la littérature pour expliquer l'échec des nouvelles entreprises, laquelle arrive systématiquement en tête ?", opts:["Mauvais recrutement des premiers salariés","Absence de besoin marché réel pour le produit ou service proposé","Concurrence déloyale de grandes entreprises","Insuffisance des aides publiques à la création"], correct:1, expl:"Raison n°1 d'échec : <strong>absence de besoin marché réel</strong>. L'entrepreneur crée une solution pour un problème qui n'existe pas ou qui n'est pas suffisamment douloureux pour que les clients paient."},
+  {qcm:3, q:"Le modèle des Big Five (OCEAN) associe l'intention entrepreneuriale à un niveau élevé de :", opts:["Névrosisme et agréabilité","Ouverture à l'expérience, extraversion et conscience (Conscientiousness)","Agréabilité et stabilité émotionnelle uniquement","Névrosisme et ouverture à l'expérience"], correct:1, expl:"Big Five et entrepreneuriat : <strong>Ouverture à l'expérience</strong> (créativité), <strong>Extraversion</strong> (réseau, leadership), <strong>Conscientiousness</strong> (rigueur, persévérance). Le névrosisme est une contrainte."},
+  {qcm:3, q:"Ce qui distingue principalement l'entrepreneur social de l'entrepreneur commercial est :", opts:["L'absence totale de recherche de revenus ou de profit","La priorité accordée à la création de valeur sociale ou environnementale, le profit étant un moyen et non une fin","Le statut juridique exclusivement associatif de son organisation","L'obligation de travailler uniquement dans les pays en développement"], correct:1, expl:"Entrepreneur social : le profit est un <strong>moyen</strong> au service de la mission sociale/environnementale, pas une fin. Il peut avoir des revenus et ne pas être forcément associatif."},
+  {qcm:3, q:"La compétence d'« alertness » (hypervigilance opportuniste) théorisée par Kirzner désigne :", opts:["La capacité à anticiper toutes les crises financières macroéconomiques","La disposition à percevoir des opportunités de profit là où d'autres ne voient que du désordre ou de l'inefficience","L'aptitude à surveiller en permanence les réseaux sociaux numériques","La compétence à gérer des alertes comptables et fiscales"], correct:1, expl:"Alertness (Kirzner) = <strong>percevoir des opportunités de profit</strong> dans des situations que les autres voient comme du désordre ou de l'inefficience. C'est une vigilance entrepreneuriale active."},
+  {qcm:3, q:"Dans le modèle de Timmons, les trois facteurs clés du processus entrepreneurial sont :", opts:["Marché, technologie, réglementation","Opportunité, équipe, ressources — en équilibre dynamique","Innovation, capital-risque, croissance","Vision, mission, valeurs organisationnelles"], correct:1, expl:"Timmons = <strong>Opportunité + Équipe + Ressources</strong> en équilibre dynamique. Ces 3 facteurs doivent être alignés et s'ajuster en permanence pour que le processus entrepreneurial réussisse."},
+  {qcm:3, q:"L'intégrité est considérée comme une qualité entrepreneuriale fondamentale car :", opts:["Elle permet d'éviter toutes les obligations fiscales légales","Elle est exigée juridiquement pour obtenir tout financement bancaire","Elle renforce la confiance des parties prenantes, réduit les coûts d'agence et favorise la réputation à long terme","Elle remplace la nécessité d'avoir une stratégie commerciale définie"], correct:2, expl:"L'intégrité = <strong>confiance des parties prenantes</strong> + réduction des coûts d'agence + réputation à long terme. C'est un actif stratégique, pas une obligation juridique."}
+];
+
+let questions = [];
+let current = 0;
+let score = 0;
+let wrongOnes = [];
+let answered = false;
+let activeQcm = 0;
+
+function startQuiz(qcmFilter = 0) {
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('resultsArea').classList.remove('show');
+  if (qcmFilter === 0) {
+    questions = shuffle([...ALL_QUESTIONS]);
+  } else {
+    questions = shuffle(ALL_QUESTIONS.filter(q => q.qcm === qcmFilter));
+  }
+  current = 0; score = 0; wrongOnes = [];
+  activeQcm = qcmFilter;
+  buildTabs();
+  renderQ();
+}
+
+function buildTabs() {
+  const area = document.getElementById('tabsArea');
+  area.innerHTML = '';
+  const all = document.createElement('button');
+  all.className = 'tab-btn' + (activeQcm===0?' active':'');
+  all.textContent = 'Tout (50)';
+  all.onclick = () => startQuiz(0);
+  area.appendChild(all);
+  [1,2,3].forEach(n => {
+    const b = document.createElement('button');
+    b.className = 'tab-btn' + (activeQcm===n?' active':'');
+    b.textContent = `QCM ${n}`;
+    b.onclick = () => startQuiz(n);
+    area.appendChild(b);
+  });
+}
+
+function renderQ() {
+  answered = false;
+  const q = questions[current];
+  const total = questions.length;
+  document.getElementById('qLabel').textContent = `Question ${current+1} / ${total}`;
+  document.getElementById('scoreLabel').textContent = `Score : ${score}`;
+  document.getElementById('barFill').style.width = `${(current/total)*100}%`;
+  document.getElementById('qNum').textContent = `QCM ${q.qcm} — Q${current+1}`;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').innerHTML = '';
+  const nb = document.getElementById('nextBtn');
+  nb.className = 'next-btn';
+  nb.textContent = 'Question suivante →';
+
+  const letters = ['A','B','C','D'];
+  const area = document.getElementById('optionsArea');
+  area.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => handleAnswer(i, btn, q);
+    area.appendChild(btn);
+  });
+}
+
+function handleAnswer(idx, btn, q) {
+  if (answered) return;
+  answered = true;
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedback');
+  const nextBtn = document.getElementById('nextBtn');
+  if (idx === q.correct) {
+    btn.classList.add('correct');
+    score++;
+    document.getElementById('scoreLabel').textContent = `Score : ${score}`;
+    fb.className = 'feedback correct-fb';
+    fb.innerHTML = `✅ <strong>Bonne réponse !</strong> ${q.expl}`;
+    nextBtn.className = 'next-btn show green';
+    nextBtn.textContent = current + 1 < questions.length ? 'Question suivante →' : 'Voir mes résultats →';
+  } else {
+    btn.classList.add('wrong');
+    btns[q.correct].classList.add('reveal');
+    wrongOnes.push(q);
+    fb.className = 'feedback wrong-fb';
+    fb.innerHTML = `❌ <strong>Mauvaise réponse.</strong> ${q.expl}`;
+    nextBtn.className = 'next-btn show';
+    nextBtn.textContent = current + 1 < questions.length ? 'Question suivante →' : 'Voir mes résultats →';
+  }
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) {
+    showResults();
+  } else {
+    const card = document.getElementById('qCard');
+    card.style.animation = 'none';
+    card.offsetHeight;
+    card.style.animation = 'slideUp 0.35s ease both';
+    renderQ();
+  }
+}
+
+function showResults() {
+  document.getElementById('quizArea').style.display = 'none';
+  const res = document.getElementById('resultsArea');
+  res.classList.add('show');
+  const total = questions.length;
+  const pct = Math.round((score/total)*100);
+  let icon, title, sub;
+  if (pct >= 85) { icon='🏆'; title='Excellent !'; sub='Tu maîtrises parfaitement le cours.'; }
+  else if (pct >= 70) { icon='🎯'; title='Très bien !'; sub='Quelques points à consolider.'; }
+  else if (pct >= 50) { icon='📚'; title='Pas mal !'; sub='Continue à réviser les points faibles.'; }
+  else { icon='💪'; title='À retravailler'; sub='Relis le cours et recommence.'; }
+  document.getElementById('resultsIcon').textContent = icon;
+  document.getElementById('scoreBig').textContent = `${pct}%`;
+  document.getElementById('scoreDetail').textContent = `${score} / ${total} bonnes réponses`;
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('resultsSub').textContent = sub;
+}
+
+function restart() {
+  document.getElementById('resultsArea').classList.remove('show');
+  document.getElementById('startScreen').style.display = 'block';
+}
+
+function restartWrong() {
+  if (!wrongOnes.length) { restart(); return; }
+  document.getElementById('resultsArea').classList.remove('show');
+  document.getElementById('quizArea').style.display = 'block';
+  questions = shuffle([...wrongOnes]);
+  current = 0; score = 0; wrongOnes = [];
+  buildTabs();
+  renderQ();
+}
+
+function shuffle(arr) {
+  for (let i=arr.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+</script>
+</body>
+</html>
